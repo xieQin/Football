@@ -1,0 +1,231 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<h3>该文档要用浏览器查看源码方式阅读</h3>
+
+----------
+v1000
+----------
+
+zj_php 是掌金PHP项目的简单框架, 目的是让掌金项目能夸SAE、BAE和其他云平台运行，并且方便本地开发和调试。
+zj_php 框架引用入口文件 zj_php.php。
+zj_php 应用采用单入口文件 index.php 访问。
+
+
+>>> 目录结构：
+Common 公共文件目录
+Lib 核心基类库目录
+Extend 扩展（第三方）目录
+Resource 资源文件目录
+example 实例目录
+
+说明：
+1. Lib 和 Extend 目录下的类使用时会自动加载。
+2. 自动加载的类文件命名要求是: Name.class.php 或 class.Name.php
+
+>>> 系统文件说明:
+Common\Common.inc.php   系统方法文件
+      \Function.inc.php 有用函数文件
+      \Config.inc.php   系统配置文件
+      \Runtime.inc.php  系统运行文件
+
+Lib\Action.class.php    应用中Actoin基类
+   \Chinese.class.php   编码转换类
+   \MyCache.class.php   缓存操作类
+   \MyDb.class.php      数据库操作类
+   \MyModel.class.php   数据表Model操作类
+
+>>> 框架应用入口文件：
+zj_php.php
+
+>>> 创建项目：
+1. 拷贝 zj_php 架构包到合适位置；
+2. 任意地方建立项目目录“App1”;
+3. App1目录下建立项目单入口文件 index.php;
+4. 如下代码拷贝到 index.php文件中：
+<?php
+    //应用zj_php框架
+    require_once '../../zj_php.php';
+    
+    //设置应用路径
+    setC("APP_PATH", dirname(__FILE__));
+    
+    //添加应用自动加载类路径
+    add_autoload_path(getC("APP_PATH")."/Action/");
+    
+    //添加应用配置文件
+    add_app_config(getC("APP_PATH")."/Conf/App1_Conf.php");
+    
+    //执行请求
+    Runtime::doQuery();
+?>
+5. 在App1目录下创建控制器目录“Action”;
+6. 在Action目录下建 IndexAction.class.php 文件，并拷贝如下代码到该文件中：
+<?php
+class IndexAction extends Action {
+    public function index() {
+        echo "this is IndexAction index";
+    }
+    public function m2() {
+        echo "this is IndexAction m2";
+    }
+}
+?>
+7. 根据需要创建应用的其他目录，如：Business、Conf、Html、Public等。
+[应用创建完毕]
+
+可以通过以下访问应用：
+http://xxx/App1/index.php/
+http://xxx/App1/index.php/Index
+http://xxx/App1/index.php/Index/m2
+
+>>> 控制器(Action)说明：
+1. 建议将Action目录设置为自动加载目录；
+2. 所有的Action类要求继承 “Action基类(zj_php/Lib/Action.class.php)”；
+3. 控制器命名规法为 {Name}Action.class.php;
+4. 根据需要可以重写Action基类中的 __before, __after等方法；
+5. AppUrl/index.php/Aaa/bb 是请求控制器“AaaAction”的方法“bb”;
+6. 可以在App目录下创建文件 .htaccess (Apache目录配置文件)，并用以下代码隐藏请求Url中入口文件 index.php：
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+</IfModule>
+
+>>> 请求参数说明：
+1. 完整Get请求格式为：  AppUrl/Action/method/?p1=111&p2=222
+2. method中，可以用原PHP的 $_GET,$_POST,$_COOKIE，$_REQUEST等获取请求数据；
+3. zj_php 将 $_REQUEST 中数据预定义成 $q_{xxx} 形式的的全局变量（注意$_REQUEST中 POST，GET等数据的优先级），如：
+<?php
+//请求URL： AppUrl/Aaa/bb/?p1=111&p2=222
+class AaaAction extends Action {
+    public function bb() {
+        global $q_p1, $q_p2;
+        echo "{$q_p1} ===== {$q_p2}";
+    }
+}
+?>
+
+>>> 配置文件：
+1. zj_php的配置文件 Common/Common.inc.php, 用全局变量 $zj_config 保存配置信息；
+2. 可以用 setC($key, $value), getC($key)方法快捷 set 和 get 指定 key的配置信息；
+3. 在入口文件 index.php 中可以用 add_app_config($app_config_file)添加应用的配置信息，应用的配置信息同样可以用setC、getC操作;
+4. 应用的配置文件内容要求是以下格式：
+<?php
+return array(
+    "c1" => 1234,
+    "c2" => array("11","22"),
+);
+?>
+5. 修改 SERVER_PLAT 可以指定系统运行在哪个平台上(OWN|SAE|BAE); 
+6. 修改 DB_HOST、DB_USER、DB_PWD、DB_NAME 可以配置Mysql数据连接信息；
+7. 修改 MEMCACHE_SERVER 、 MEMCACHE_PORT 可以配置 Memcache 的连接信息；
+
+>>> 数据库操作（Lib/MyDb.class.php 封装类）:
+1. MyDb用query方法统一操作数据库，query直接执行sql语句；
+2. 如果是查询，query返回SELECT查询结果；
+3. 如果是修该表，query返回操作影响记录条数（和插入记录的主键值（需是自增）），格式为：
+<?php
+    array("af"=>1, "id"=>100);
+?>
+4. MyDb中还提供了以下快捷查询（select）操作方法 query_array、query_one、query_int, 详见实例。   
+5. 为防止 sql 注入，要求接收的信息不能直接拼装sql语句，要用 ? 的参数形式;
+实例：
+<?php
+    //创建数据库操作实例：
+    $db = D();
+    
+    //条件查找1
+    $sql1 = "SELECT * FROM t_test2 ";
+    my_log($db->query($sql1));
+    
+    //条件查找2
+    $sql2 = "SELECT * FROM t_test2 where id = ? or id = ? ";
+    my_log($db->query($sql2, array("1", "3")));
+
+    //插入
+    $time = time();
+    $sql3 = " INSERT INTO t_test1 (`uname`,`uaddress`) VALUES('$time', '$time') ";
+    my_log($db->query($sql3));
+    
+    //删除
+    $sql4 = " delete from t_test1 where idss = ? ";
+    my_log($db->query($sql4, array(1)));
+
+    //快捷查询，返回结果数组列表
+    $sql5 = "SELECT * FROM t_test2 ";
+    my_log($db->query_array($sql5));
+    
+    //快捷查询，只返回一条查询结果
+    $sql6 = "SELECT * FROM t_test2 where id=1 ";
+    my_log($db->query_one($sql6));
+    
+    //快捷查询，返回查询的数字
+    $sql7 = "select count(*) from t_test2 where id = 10000";
+    my_log($db->query_int($sql7));
+?>
+
+>>> 用数据Model操作数据表 (Lib/MyModel.class.php 封装类):
+1. 可以MyModel直接操作数据表；
+2. 除 add 外，select,find,update,delete 等方法，建议明确指定where条件，否则操作采用最后一次指定的where条件；
+实例：
+<?php
+     
+    //创建Model实例
+    $m = M("t_test1");
+
+    // 添加
+    $time = time();
+    $data = array("uname"=>"$time", "uaddress"=>"$time");
+    my_log($m->add($data));
+    
+    //简单查询
+    $arr = $m->where("1=1")->select();
+    my_log($arr);
+    
+    //复杂查询
+    $arr = $m->where(" idss=? or idss=? ", array(2,3))->order(" idss desc ")->limit(" 1,1 ")->select(" idss,uname ");
+    my_log($arr);
+  
+    //只返回一条查询结果
+    $arr = $m->where("1=1")->find();
+    my_log($arr);
+  
+    //修改
+    $data = array('uname' => "uuuuuuuuuuu");
+    $get = $m->where("idss=2")->update($data);
+    my_log($get);
+
+    //删除
+    $get = $m->where("idss=2")->delete();
+    my_log($get);  
+?>
+
+>>> Memcache操作（Lib/MyCache.class.php 封装类）：
+1. MyCache 封装了SAE、BAE 等多平台操作 Memcache 的方法，可在配置中指定平台。
+2. 设置Cache数据用两个方法：set 和 set2。
+区别是：set 设置数据参数是地址传递，要求是个变量；set2 参数是值传递。推荐用 set 方法。
+3. 过期时间为相对当前时间的"秒"数 或是 某个时间的时间戳(秒);
+
+实例：
+<?php
+
+    //创建操作实例
+    $mem = MC();
+    
+    //set方法
+    $arr1 = array("arr111");
+    $mem->set("k1", $arr1);
+    my_log($mem->get("k1"));
+
+    //set2方法, 5秒后过期
+    $mem->set2("k2", "2222", 5);
+    my_log($mem->get("k2"));
+    $mem->delete("k2");
+    
+    //删除
+    $mem->delete("k1");
+    my_log($mem->get("k1"));
+?>
+
+>>> 应用分组
+1. zj_php 不直接支持分组，可以在同级目录下建多个应用变相实现分组。

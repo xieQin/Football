@@ -17,6 +17,7 @@ class SubmitResult {
     const Failed = 201;
     const ErrorMobile = 202;
     const HasVoted = 203;
+    const VoteExpired = 204;
 
     public static function getResultMsg($v) {
         switch ($v) {
@@ -31,6 +32,9 @@ class SubmitResult {
                 break;
             case self::ErrorMobile:
                 return "验证码错误";
+                break;
+            case self::VoteExpired:
+                return "投票已结束"；
                 break;
         }
     }

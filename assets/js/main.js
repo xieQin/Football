@@ -6,6 +6,7 @@ $(document).ready(function($) {
 	var chooseClass = "active";
 	var opacityClass = "opacity";
 	var url_lv = '';
+    var expiredTime = new Date('2014/6/30 10:30');
 	var $submitBtn = $("#submitBtn");
     var $resultBtn = $("#showResultBtn");
     var $resultLayer = $("#resultLayer");
@@ -23,6 +24,19 @@ $(document).ready(function($) {
 	}, 1000);
 
 	getUrl();
+
+    voteHasExpired();
+
+    function voteHasExpired() {
+        var now = new Date();
+        if (now > expiredTime) {
+            $submitBtn.hide();
+            $resultBtn.attr('class', 'btnYellow');
+            //$(".search_No hover").css('width', '174px');
+        }
+        //return now > expireTime;
+
+    }
 
     function getUrl() {
         var v = window.location.href;

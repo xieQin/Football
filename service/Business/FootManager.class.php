@@ -34,6 +34,12 @@ class FootManager {
             return SubmitResult::Failed;
         }
 
+        $ex_t = CommHelper::getPRCTimeByString('2014-06-19');
+
+        if (CommHelper::getPRCNowTime() > $ex_t) {
+            return SubmitResult::VoteExpired;
+        }
+
         $cache = MyCache::share();
 
         $thisCode = $cache->get($mobile);

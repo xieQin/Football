@@ -34,7 +34,7 @@ class SubmitResult {
                 return "验证码错误";
                 break;
             case self::VoteExpired:
-                return "投票已结束"；
+                return "投票已结束";
                 break;
         }
     }

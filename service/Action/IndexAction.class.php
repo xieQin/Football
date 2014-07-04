@@ -50,7 +50,7 @@ class IndexAction extends BaseAction {
         $res = $mgr->getMyVote($q_code, $q_phone, $resultCode);
         if ($resultCode == GetResult::Success) {
             //echo $this->responseRight(array($res['Result']));
-            echo $this->responseRight(array($res['Result'],$res['ResultDetail']));
+            echo $this->responseRight(array($res['Result'],$res['ResultDetail'],$res['Name']));
         } else {
             echo $this->responseFail($res, $resultCode);
         }

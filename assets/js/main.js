@@ -87,13 +87,13 @@ $(document).ready(function($) {
             team.find("i").hide();
 			//$(this).find("i").hide();
         } else {
-            $(this).addClass(chooseClass);           
+            $(this).addClass(chooseClass);
             var delNum = groupResult.shift() - 1;
-            team.eq(delNum).removeClass(chooseClass);     
+            team.eq(delNum).removeClass(chooseClass);
             groupResult.push(teamNum);
             team.addClass(opacityClass);
             team.eq(groupResult[0] - 1).removeClass(opacityClass);
-            team.find("i").hide();       
+            team.find("i").hide();
 			$(this).find("i").show();
         }
 	}).bind('click', function(event) {
@@ -152,7 +152,7 @@ $(document).ready(function($) {
         	$(this).removeClass(chooseClass);
         	finalTeam.find("i").hide();
         }
-        
+
 	}).bind('click', function() {
 		var teamGroup = $(this).attr("id");
 		var championNum = $(this).children('dt').attr("teamNum");
@@ -172,10 +172,9 @@ $(document).ready(function($) {
 		var teamName = teamMap[teamId].country[championNum - 1];
 		var championHtml = '';
 		championHtml +='<dt class="dt_04 "><img src="assets/image/'+ Id +'-'+championNum+'.png"/></dt><dd class="dd_04 ">' + teamName + '</dd>';
-		var championChoose = 
 		champion.html(championHtml);
 	});
-	
+
 	//十六强
 	var teamMap = [
 		{"groupId":"A","teamNum":["1","2","3","4"],"imgPath": "1-","country":["巴西","智利","哥伦比亚","乌拉圭"]},
@@ -317,10 +316,10 @@ $(document).ready(function($) {
                 }
                 else {
                     lotteryHtml += '<dl><dt class="wid10">' + '<span></span><div><img style="margin-top:28px;" src="assets/image/01.png"></div></dt></dl>';
-                }    
+                }
             }
         }
-        
+
         //预测冠军
         var myChampionHtml = '';
         for (var i = 0; i < 4; i++) {
@@ -333,10 +332,10 @@ $(document).ready(function($) {
         		championGroup = i;
         		myChampionHtml = '<dl style="padding:0 160px;"><dd class="wid100"><div class="holderNo_po"><div class="flag"><div class="icon_right"><img src="assets/image/' + teamMap[championGroup].imgPath + championNum + '.png"></div></div><div class="titCenter">' + championName + '</div></div></dd></dl>';
         	}
-        	
+
         }
         //myChampionHtml = '<dl style="padding:0 160px;"><dd class="wid100"><div class="holderNo_po"><div class="flag"><div class="icon_right"><img src="assets/image/' + teamMap[i].imgPath + teamNum + '.png"></div></div><div class="titCenter">' + teamName + '</div></div></dd></dl>';
-        
+
         myChampion.html(myChampionHtml);
         //最终冠军
 
@@ -404,6 +403,11 @@ $(document).ready(function($) {
 
 //提交
     $submitBtn.bind("click", function() {
+
+        /*if (voteHasExpired()) {
+            alert('投票已结束');
+            return;
+        }*/
 
         $('#tbdiv1').hide();
         $('#tbdiv').show();
@@ -509,7 +513,7 @@ $(document).ready(function($) {
 
     function pushData() {
         //var de = combineResultString(currentChoose);
-        var ddd=33333;
+        //var ddd=33333;
         $.ajax({
             url: url_lv + "/service/index.php/Index/submitResult",
             data: {

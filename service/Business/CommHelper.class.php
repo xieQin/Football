@@ -30,10 +30,6 @@ class CommHelper {
         return time();
     }
 
-    public static function getPRCTimeByString($timeString) {
-        return strtotime($timeString);
-    }
-
     public static function getPRCNowStr() {
         $t = self::getPRCNowTime();
         return date("Y-m-d H:i:s", $t);
@@ -43,6 +39,10 @@ class CommHelper {
         return date("Y-m-d H:i:s", $now);
     }
 
+    public static function getPRCTimeByString($timeString) {
+        return strtotime($timeString);
+    }
+    
     public static function getPRCTimeAfterDays($days) {
         date_default_timezone_set("PRC");
         return strtotime("+" . $days . " day");
